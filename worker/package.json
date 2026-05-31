@@ -1,0 +1,14 @@
+{
+  "name": "date-reminder-push",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Free Cloudflare Worker that fires reminder push notifications on a cron.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "^3.78.0"
+  }
+}

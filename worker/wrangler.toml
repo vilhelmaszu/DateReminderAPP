@@ -1,0 +1,21 @@
+name = "date-reminder-push"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+
+# Run the dispatcher every minute.
+[triggers]
+crons = ["* * * * *"]
+
+# KV namespace for subscriptions + schedules.
+# Create it with:  npx wrangler kv namespace create SUBS
+# then paste the returned id below.
+[[kv_namespaces]]
+binding = "SUBS"
+id = "PASTE_KV_NAMESPACE_ID_HERE"
+
+[vars]
+VAPID_SUBJECT = "mailto:you@example.com"
+# VAPID_PUBLIC is public — safe to keep here (must match the client's key).
+VAPID_PUBLIC = "PASTE_VAPID_PUBLIC_KEY_HERE"
+# VAPID_PRIVATE is secret — DO NOT put it here. Set it with:
+#   npx wrangler secret put VAPID_PRIVATE

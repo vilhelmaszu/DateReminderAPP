@@ -1,0 +1,21 @@
+node_modules
+dist
+dist-ssr
+*.local
+.env
+.env.*
+!.env.example
+
+# Local editor / tooling state — not part of the app
+.claude/
+.idea/
+.vscode/
+.DS_Store
+.vite
+Thumbs.db
+*.log
+
+# Worker build artifacts
+worker/node_modules
+worker/.wrangler
+worker/dist
