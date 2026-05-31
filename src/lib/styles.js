@@ -3,9 +3,9 @@
 // Switched via `[data-style="…"]` on <html>; CSS rules live in index.css.
 
 export const STYLES = [
-  { id: 'rounded', name: { en: 'Rounded', lt: 'Apvalintas' } },
-  { id: 'crisp',   name: { en: 'Crisp',   lt: 'Aiškus' } },
-  { id: 'glass',   name: { en: 'Glass',   lt: 'Stiklas' } },
+  { id: 'rounded', name: { en: 'Rounded',   lt: 'Apvalintas' } },
+  { id: 'crisp',   name: { en: 'Editorial', lt: 'Redakcinis' } },
+  { id: 'glass',   name: { en: 'Neon',      lt: 'Neonas' } },
 ]
 
 export const DEFAULT_STYLE = 'rounded'

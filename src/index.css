@@ -202,77 +202,176 @@
  * any palette × any style works. Default is "rounded" (no override needed).
  */
 
-/* CRISP — professional / business-like. Sharp corners, no gradients, subtle
-   borders, denser spacing. Linear / Stripe / Notion feel. */
+/* ===== EDITORIAL — newspaper / Linear-blog / The Atlantic =====
+   Serif titles, monospace numbers, all-caps labels, thin rules, ZERO corners,
+   no shadows. Reads like a publication, not an app. */
 [data-style="crisp"] {
-  --radius: 6px;
-  --radius-sm: 4px;
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 8px 24px rgba(0, 0, 0, 0.08);
+  --radius: 0px;
+  --radius-sm: 0px;
+  --shadow: none;
+  --font-display: ui-serif, Georgia, 'Iowan Old Style', Palatino, 'Times New Roman', serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
 }
-[data-style="crisp"] .btn--primary {
-  background: var(--primary);
-  box-shadow: none;
+/* Serif everywhere there's a real title */
+[data-style="crisp"] .header__title,
+[data-style="crisp"] .modal__title,
+[data-style="crisp"] .card__name,
+[data-style="crisp"] .cal__title,
+[data-style="crisp"] .empty__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
-[data-style="crisp"] .btn--primary:hover { background: var(--primary-soft); filter: none; }
-[data-style="crisp"] .seg__btn.is-active { background: var(--primary); }
+/* Monospace ALL numbers — countdowns, stats, calendar cells */
 [data-style="crisp"] .stat__value,
+[data-style="crisp"] .stat__value--sm,
 [data-style="crisp"] .card__days,
-[data-style="crisp"] .card__daysSub { font-variant-numeric: tabular-nums; }
-[data-style="crisp"] .stat { padding: 14px 16px; }
-[data-style="crisp"] .card { padding: 13px 14px; gap: 12px; transition: background 0.12s ease; }
-[data-style="crisp"] .card:hover { transform: none; background: var(--surface-2); }
-[data-style="crisp"] .cal { padding: 16px; }
-[data-style="crisp"] .card__emoji { border-radius: 4px; }
-[data-style="crisp"] .toggle__input:checked + .toggle__track { background: var(--primary); }
-[data-style="crisp"] .toggle__track { border-radius: 4px; }
-[data-style="crisp"] .toggle__knob { border-radius: 2px; }
-[data-style="crisp"] .header__logo { border-radius: 6px; }
-[data-style="crisp"] .modal { border-radius: 6px; }
-[data-style="crisp"] .stat__label { text-transform: uppercase; letter-spacing: 0.05em; font-size: 11px; }
-
-/* GLASS — translucent panels with backdrop blur. Beautiful on dark palettes
-   especially. Subtle on lights so it stays legible. */
-[data-style="glass"] {
-  --radius: 14px;
-  --radius-sm: 10px;
-  --shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+[data-style="crisp"] .card__daysSub,
+[data-style="crisp"] .cal__num,
+[data-style="crisp"] .mini__cell {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
+/* Section labels: ALL CAPS, wide-spaced, tiny — like a column header */
+[data-style="crisp"] .stat__label,
+[data-style="crisp"] .settings__heading,
+[data-style="crisp"] .section__title,
+[data-style="crisp"] .field__label {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+/* Surfaces: flat backgrounds, sharp 1-px rules — no soft shadows */
+[data-style="crisp"] .stat,
+[data-style="crisp"] .cal,
+[data-style="crisp"] .card,
+[data-style="crisp"] .empty,
+[data-style="crisp"] .modal,
+[data-style="crisp"] .toast {
+  background: var(--surface);
+  border-radius: 0;
+  box-shadow: none;
+  border: 1px solid var(--border);
+}
+[data-style="crisp"] .card {
+  border-left: 3px solid var(--accent);
+  transition: background 0.12s ease;
+}
+[data-style="crisp"] .card:hover { transform: none; background: var(--surface-2); }
+[data-style="crisp"] .card__emoji { border-radius: 0; }
+/* Buttons */
+[data-style="crisp"] .btn--primary {
+  background: var(--text);
+  color: var(--bg);
+  border-radius: 0;
+  box-shadow: none;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 12px;
+  padding: 11px 18px;
+}
+[data-style="crisp"] .btn--primary:hover { background: var(--primary); color: white; filter: none; }
+[data-style="crisp"] .btn--ghost { border-radius: 0; }
+[data-style="crisp"] .iconbtn,
+[data-style="crisp"] .installBtn,
+[data-style="crisp"] .header__logo,
+[data-style="crisp"] .field__input,
+[data-style="crisp"] .seg,
+[data-style="crisp"] .seg__btn,
+[data-style="crisp"] .typePicker__btn,
+[data-style="crisp"] .recPicker__btn,
+[data-style="crisp"] .chip,
+[data-style="crisp"] .swatch,
+[data-style="crisp"] .swatch__preview,
+[data-style="crisp"] .styleSwatch,
+[data-style="crisp"] .toggle__track,
+[data-style="crisp"] .toggle__knob,
+[data-style="crisp"] .card__act,
+[data-style="crisp"] .card__badge,
+[data-style="crisp"] .card__recur {
+  border-radius: 0;
+}
+[data-style="crisp"] .seg__btn.is-active { background: var(--text); color: var(--bg); }
+[data-style="crisp"] .toggle__input:checked + .toggle__track { background: var(--text); }
+[data-style="crisp"] .toggle__knob { background: var(--bg); border: 1px solid var(--text); }
+/* Calendar cells: thin grid feel */
+[data-style="crisp"] .cal__cell { border-radius: 0; }
+[data-style="crisp"] .toast { border-radius: 0; }
+
+/* ===== NEON — synthwave / cyberpunk =====
+   Bright glowing accents everywhere, halos around numbers and titles, light
+   spills out of cards in their category color. Loud and unmistakeable. */
+[data-style="glass"] {
+  --radius: 10px;
+  --radius-sm: 8px;
+  --shadow: 0 0 30px color-mix(in srgb, var(--primary) 35%, transparent);
+}
+/* Glowing title */
+[data-style="glass"] .header__title {
+  text-shadow: 0 0 18px color-mix(in srgb, var(--primary) 70%, transparent),
+               0 0 4px color-mix(in srgb, var(--primary) 50%, transparent);
+}
+/* Cards and surfaces glow in their accent / primary color */
 [data-style="glass"] .stat,
 [data-style="glass"] .cal,
-[data-style="glass"] .card,
 [data-style="glass"] .empty,
-[data-style="glass"] .modal,
+[data-style="glass"] .modal {
+  border: 1px solid color-mix(in srgb, var(--primary) 35%, var(--border));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 18%, transparent),
+              0 6px 24px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+[data-style="glass"] .card {
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+  border-left: 4px solid var(--accent);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--accent) 25%, transparent),
+              inset 6px 0 18px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+[data-style="glass"] .card:hover {
+  background: var(--surface);
+  transform: translateY(-1px);
+  box-shadow: 0 0 32px color-mix(in srgb, var(--accent) 45%, transparent),
+              inset 6px 0 22px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+[data-style="glass"] .card--soon {
+  box-shadow: 0 0 28px color-mix(in srgb, var(--accent) 55%, transparent),
+              inset 6px 0 20px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+[data-style="glass"] .card--soon .card__days {
+  text-shadow: 0 0 14px color-mix(in srgb, var(--accent) 80%, transparent);
+}
+/* Stats numbers + countdowns: gently glowing */
+[data-style="glass"] .stat__value {
+  text-shadow: 0 0 14px color-mix(in srgb, var(--primary) 55%, transparent);
+}
+[data-style="glass"] .cal__num {
+  text-shadow: 0 0 6px color-mix(in srgb, var(--primary) 25%, transparent);
+}
+[data-style="glass"] .cal__cell--today {
+  box-shadow: 0 0 0 1px var(--primary) inset,
+              0 0 16px color-mix(in srgb, var(--primary) 50%, transparent);
+}
+[data-style="glass"] .cal__cell--important {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent, var(--important-strong)) 60%, transparent) inset,
+              0 0 14px color-mix(in srgb, var(--accent, var(--important-strong)) 50%, transparent);
+}
+/* Buttons: neon-outline */
+[data-style="glass"] .btn--primary {
+  background: var(--primary);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--primary) 60%, transparent),
+              0 0 0 1px var(--primary) inset;
+}
+[data-style="glass"] .installBtn {
+  box-shadow: 0 0 18px color-mix(in srgb, var(--primary) 40%, transparent);
+}
+[data-style="glass"] .chip.is-active {
+  box-shadow: 0 0 14px color-mix(in srgb, var(--primary) 55%, transparent);
+}
 [data-style="glass"] .toast {
-  background: color-mix(in srgb, var(--surface) 60%, transparent);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
-  border-color: color-mix(in srgb, var(--text) 12%, transparent);
-}
-[data-style="glass"] .stat:hover, [data-style="glass"] .card:hover {
-  background: color-mix(in srgb, var(--surface) 75%, transparent);
-}
-[data-style="glass"] .modal__backdrop {
-  background: rgba(8, 9, 13, 0.45);
-  backdrop-filter: blur(8px);
-}
-/* Lights need a bit more opacity to stay readable */
-[data-theme="daylight"][data-style="glass"] .stat,
-[data-theme="daylight"][data-style="glass"] .cal,
-[data-theme="daylight"][data-style="glass"] .card,
-[data-theme="daylight"][data-style="glass"] .modal,
-[data-theme="sand"][data-style="glass"] .stat,
-[data-theme="sand"][data-style="glass"] .cal,
-[data-theme="sand"][data-style="glass"] .card,
-[data-theme="sand"][data-style="glass"] .modal,
-[data-theme="rose"][data-style="glass"] .stat,
-[data-theme="rose"][data-style="glass"] .cal,
-[data-theme="rose"][data-style="glass"] .card,
-[data-theme="rose"][data-style="glass"] .modal,
-[data-theme="mint"][data-style="glass"] .stat,
-[data-theme="mint"][data-style="glass"] .cal,
-[data-theme="mint"][data-style="glass"] .card,
-[data-theme="mint"][data-style="glass"] .modal {
-  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  border-color: color-mix(in srgb, var(--primary) 40%, var(--border));
+  box-shadow: 0 0 30px color-mix(in srgb, var(--primary) 30%, transparent);
 }
 
 * { box-sizing: border-box; }
@@ -509,11 +608,22 @@ body {
 .styleSwatch__line--sm { height: 5px; width: 70%; }
 /* Each preview's shape mirrors the actual style it represents */
 [data-style-preview="rounded"] .styleSwatch__line { border-radius: 6px; }
-[data-style-preview="crisp"] .styleSwatch__line { border-radius: 1px; }
+/* Editorial: hard 1-px rules in text color, like a print column */
+[data-style-preview="crisp"] .styleSwatch__line {
+  border-radius: 0;
+  background: var(--text);
+  height: 3px;
+}
+[data-style-preview="crisp"] .styleSwatch__line--sm {
+  background: var(--text-dim);
+  width: 55%;
+  height: 2px;
+}
+/* Neon: glowing bars */
 [data-style-preview="glass"] .styleSwatch__line {
-  border-radius: 5px;
-  background: color-mix(in srgb, var(--primary) 65%, transparent);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 25%, transparent);
+  border-radius: 6px;
+  background: var(--primary);
+  box-shadow: 0 0 10px var(--primary), 0 0 3px var(--primary);
 }
 .styleSwatch__name { font-weight: 600; }
 
@@ -578,6 +688,8 @@ body {
 .settings__sub { font-size: 12px; font-weight: 400; font-style: normal; color: var(--text-faint); }
 
 .settings__test { width: 100%; margin-top: 4px; }
+.backupRow { display: flex; gap: 8px; flex-wrap: wrap; }
+.backupRow__btn { flex: 1 1 160px; }
 .settings__test:disabled { opacity: 0.5; cursor: not-allowed; }
 .settings__testMsg { margin: 10px 0 0; font-size: 13px; text-align: center; }
 .settings__testMsg.is-ok { color: #22c55e; }

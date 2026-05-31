@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useI18n, LANGUAGES } from '../lib/i18n.jsx'
 import { THEMES } from '../lib/themes.js'
 import { permission, sendTest } from '../lib/notifications.js'
@@ -6,6 +6,7 @@ import { TYPE_ORDER, typeMeta } from '../lib/eventTypes.js'
 import { STYLES } from '../lib/styles.js'
 import { SOUNDS, playSound } from '../lib/sounds.js'
 import { pushConfigured, currentSubscription, enablePush, disablePush } from '../lib/push.js'
+import { downloadBackup, importBackup, readBackupFile } from '../lib/backup.js'
 import TierChips from './TierChips.jsx'
 
 export default function SettingsPanel({ settings, setSettings, theme, setTheme, style, setStyle, events, onNotifChange, onClose }) {
@@ -14,6 +15,8 @@ export default function SettingsPanel({ settings, setSettings, theme, setTheme, 
   const [testMsg, setTestMsg] = useState(null)
   const [pushOn, setPushOn] = useState(false)
   const [pushBusy, setPushBusy] = useState(false)
+  const [backupMsg, setBackupMsg] = useState(null)
+  const fileRef = useRef(null)
 
   const update = (patch) => setSettings((s) => ({ ...s, ...patch }))
 
@@ -43,6 +46,32 @@ export default function SettingsPanel({ settings, setSettings, theme, setTheme, 
       setPerm(permission())
       onNotifChange?.()
     }
+  }
+
+  function handleBackup() {
+    setBackupMsg(null)
+    try {
+      const payload = downloadBackup()
+      const count = Array.isArray(payload.events) ? payload.events.length : 0
+      setBackupMsg({ ok: true, text: t('settings.backupDone', { n: count }) })
+    } catch {
+      setBackupMsg({ ok: false, text: t('settings.backupFail') })
+    }
+  }
+
+  async function handleRestoreFile(e) {
+    setBackupMsg(null)
+    const file = e.target.files?.[0]
+    e.target.value = '' // allow re-selecting the same file later
+    if (!file) return
+    const payload = await readBackupFile(file)
+    if (!payload) { setBackupMsg({ ok: false, text: t('settings.restoreBad') }); return }
+    if (!confirm(t('settings.restoreConfirm'))) return
+    const result = importBackup(payload)
+    if (!result.ok) { setBackupMsg({ ok: false, text: t('settings.restoreBad') }); return }
+    // Easiest way to re-sync all in-memory state with the new localStorage:
+    // a hard reload. Tiny price for total simplicity + correctness.
+    location.reload()
   }
 
   async function handleTest() {
@@ -204,6 +233,30 @@ export default function SettingsPanel({ settings, setSettings, theme, setTheme, 
                 <span className="toggle__track" aria-hidden="true"><span className="toggle__knob" /></span>
               </label>
             </div>
+          )}
+        </section>
+
+        {/* ---------- Backup & restore ---------- */}
+        <section className="settings__section">
+          <h3 className="settings__heading">{t('settings.backup')}</h3>
+          <p className="settings__hint">{t('settings.backupHint')}</p>
+          <div className="backupRow">
+            <button className="btn btn--ghost backupRow__btn" onClick={handleBackup}>
+              ⬇️ {t('settings.backupNow')}
+            </button>
+            <button className="btn btn--ghost backupRow__btn" onClick={() => fileRef.current?.click()}>
+              ⬆️ {t('settings.restore')}
+            </button>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="application/json,.json"
+              style={{ display: 'none' }}
+              onChange={handleRestoreFile}
+            />
+          </div>
+          {backupMsg && (
+            <p className={`settings__testMsg ${backupMsg.ok ? 'is-ok' : 'is-fail'}`}>{backupMsg.text}</p>
           )}
         </section>
 
