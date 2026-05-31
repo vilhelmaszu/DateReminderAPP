@@ -14,6 +14,7 @@ import Calendar from './components/Calendar.jsx'
 import SettingsPanel from './components/SettingsPanel.jsx'
 import DayPanel from './components/DayPanel.jsx'
 import Toast from './components/Toast.jsx'
+import InstallButton from './components/InstallButton.jsx'
 
 export default function App() {
   const { t, locale } = useI18n()
@@ -134,6 +135,7 @@ export default function App() {
           </div>
         </div>
         <div className="header__actions">
+          <InstallButton />
           <button className="iconbtn" onClick={() => setShowSettings(true)} aria-label={t('settings.open')} title={t('settings.open')}>
             ⚙️
           </button>

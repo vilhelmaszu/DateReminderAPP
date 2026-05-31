@@ -177,6 +177,50 @@ body {
 /* ---------- Controls: notifications + language toggle + theme picker ---------- */
 .controls { display: flex; align-items: center; gap: 8px; }
 
+/* Install-PWA button — prominent but small, hides once installed. */
+.installBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--primary) 40%, var(--border));
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.06s ease;
+}
+.installBtn:hover { background: color-mix(in srgb, var(--primary) 20%, var(--surface)); border-color: var(--primary); }
+.installBtn:active { transform: translateY(1px); }
+.installBtn__label { white-space: nowrap; }
+@media (max-width: 420px) { .installBtn__label { display: none; } }
+
+/* How-to install modal */
+.modal--howto { max-width: 460px; }
+.howto__lead { margin: 0 0 12px; color: var(--text-dim); font-size: 14px; }
+.howto__steps {
+  margin: 0 0 16px;
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.howto__note {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
 /* Generic icon button (gear, close) */
 .iconbtn {
   display: inline-flex;
