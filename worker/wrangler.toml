@@ -11,11 +11,11 @@ crons = ["* * * * *"]
 # then paste the returned id below.
 [[kv_namespaces]]
 binding = "SUBS"
-id = "PASTE_KV_NAMESPACE_ID_HERE"
+id = "22ecf1f79efa4570be6178485c045c0a"
 
 [vars]
-VAPID_SUBJECT = "mailto:you@example.com"
+VAPID_SUBJECT = "mailto:vilhelmas.zu@gmail.com"
 # VAPID_PUBLIC is public — safe to keep here (must match the client's key).
-VAPID_PUBLIC = "PASTE_VAPID_PUBLIC_KEY_HERE"
+VAPID_PUBLIC = "BGS7yoxVv0X4f4q5R2q1o7aDLGTZqmiZTMER87-W59Qo53qHbll4rU2EPjzLsuLz5j3H5EtJkXHJPLDCulmLU-o"
 # VAPID_PRIVATE is secret — DO NOT put it here. Set it with:
 #   npx wrangler secret put VAPID_PRIVATE
