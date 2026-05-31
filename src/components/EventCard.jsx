@@ -31,8 +31,21 @@ export default function EventCard({ event, today, onDelete, onEdit }) {
         ? t('milestone.turning', { n: milestone })
         : t('milestone.years', { n: milestone })
 
+  // Whole card is the edit target — tap anywhere on it to open edit mode.
+  // The explicit ✎ / 🗑 buttons inside stop propagation so they keep working.
+  const cardClickable = !!onEdit
   return (
-    <li className={`card ${soon ? 'card--soon' : ''}`} style={{ '--accent': meta.accent }}>
+    <li
+      className={`card ${soon ? 'card--soon' : ''} ${cardClickable ? 'card--clickable' : ''}`}
+      style={{ '--accent': meta.accent }}
+      role={cardClickable ? 'button' : undefined}
+      tabIndex={cardClickable ? 0 : undefined}
+      aria-label={cardClickable ? `${t('common.edit')} ${event.name}` : undefined}
+      onClick={cardClickable ? () => onEdit(event) : undefined}
+      onKeyDown={cardClickable ? (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onEdit(event) }
+      } : undefined}
+    >
       <div className="card__emoji" aria-hidden="true">{emoji}</div>
 
       <div className="card__body">
@@ -63,7 +76,7 @@ export default function EventCard({ event, today, onDelete, onEdit }) {
         {onEdit && (
           <button
             className="card__act card__act--edit"
-            onClick={() => onEdit(event)}
+            onClick={(e) => { e.stopPropagation(); onEdit(event) }}
             aria-label={`${t('common.edit')} ${event.name}`}
             title={t('common.edit')}
           >
@@ -72,7 +85,7 @@ export default function EventCard({ event, today, onDelete, onEdit }) {
         )}
         <button
           className="card__act card__act--delete"
-          onClick={() => onDelete(event.id)}
+          onClick={(e) => { e.stopPropagation(); onDelete(event.id) }}
           aria-label={`${t('common.delete')} ${event.name}`}
           title={t('common.delete')}
         >

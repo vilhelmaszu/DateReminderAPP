@@ -817,6 +817,11 @@ body {
   transition: border-color 0.15s ease, transform 0.08s ease, background 0.15s ease;
 }
 .card:hover { background: var(--surface-2); transform: translateY(-1px); }
+.card--clickable { cursor: pointer; }
+.card--clickable:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
 
 .card--soon { box-shadow: 0 0 0 1px var(--accent) inset; }
 
@@ -1183,9 +1188,17 @@ body {
   .cal__num { font-size: 13px; }
   .cal__dot { width: 5px; height: 5px; }
 
-  /* Cards: let the countdown wrap under the name instead of squeezing. */
+  /* Cards: name gets its own line; badges wrap below so nothing crowds out
+     the event name. Touch targets bumped to 36px for fat-finger friendly. */
   .card { padding: 14px; gap: 12px; }
   .card__emoji { width: 40px; height: 40px; font-size: 22px; }
+  .card__top { flex-wrap: wrap; row-gap: 4px; }
+  .card__name { flex: 1 1 100%; min-width: 0; }
+  .card__badge, .card__recur { font-size: 10.5px; padding: 2px 7px; }
+  .card__countdown { min-width: 0; }
+  .card__days { font-size: 13px; }
+  .card__daysSub { font-size: 11px; }
+  .card__act { width: 36px; height: 36px; font-size: 15px; }
 
   /* Modal behaves like a bottom sheet — easier to reach with a thumb. */
   .modal__backdrop { align-items: flex-end; padding: 0; }
