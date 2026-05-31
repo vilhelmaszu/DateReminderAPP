@@ -15,6 +15,9 @@ dist-ssr
 Thumbs.db
 *.log
 
+# Personal user guide — kept local, not in the public repo
+GUIDE.md
+
 # Worker build artifacts
 worker/node_modules
 worker/.wrangler
