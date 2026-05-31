@@ -2,7 +2,9 @@
 // notifications (tapping one focuses/opens the app). The app shell is cached
 // on install; built JS/CSS are cached lazily as they're requested.
 
-const CACHE = 'date-reminder-v1'
+// Bump this on any sw.js change — the activate handler purges old caches with
+// different names, guaranteeing a clean slate after a deploy.
+const CACHE = 'date-reminder-v2'
 const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png']
 
 self.addEventListener('install', (event) => {
@@ -17,10 +19,35 @@ self.addEventListener('activate', (event) => {
   )
 })
 
-// Cache-first for our own assets, network fallback; runtime-cache successful GETs.
+// Strategy:
+//  - Navigation requests (the HTML shell) → NETWORK-FIRST. New deploys go live
+//    on the next visit without users having to clear caches; cache is the
+//    offline fallback only.
+//  - Static assets (hashed JS/CSS, icons, manifest) → CACHE-FIRST. Their URLs
+//    change with every build, so it's safe and fast.
 self.addEventListener('fetch', (event) => {
   const { request } = event
   if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return
+
+  const isNavigation =
+    request.mode === 'navigate' ||
+    (request.headers.get('accept') || '').includes('text/html')
+
+  if (isNavigation) {
+    event.respondWith(
+      fetch(request)
+        .then((res) => {
+          if (res.ok) {
+            const copy = res.clone()
+            caches.open(CACHE).then((c) => c.put(request, copy))
+          }
+          return res
+        })
+        .catch(() => caches.match(request).then((c) => c || caches.match('/index.html'))),
+    )
+    return
+  }
+
   event.respondWith(
     caches.match(request).then((cached) => {
       if (cached) return cached
@@ -32,7 +59,7 @@ self.addEventListener('fetch', (event) => {
           }
           return res
         })
-        .catch(() => caches.match('/index.html')) // SPA offline fallback
+        .catch(() => caches.match('/index.html'))
     }),
   )
 })
