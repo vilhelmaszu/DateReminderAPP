@@ -5,12 +5,14 @@ import { useI18n } from '../lib/i18n.jsx'
 const UNITS = ['minute', 'hour', 'day', 'week']
 
 /** A row of toggleable reminder-tier chips + a custom lead-time builder.
- *  `value` is an array of tier keys (preset keys and/or "c:value:unit"). */
+ *  `value` is an array of tier keys (preset keys and/or "c:value:unit").
+ *  Multi-select — every selected tier fires as its own separate notification. */
 export default function TierChips({ value, onChange }) {
   const { t } = useI18n()
   const [adding, setAdding] = useState(false)
   const [num, setNum] = useState('15')
   const [unit, setUnit] = useState('minute')
+  const count = value.length
 
   const toggle = (key) =>
     onChange(value.includes(key) ? value.filter((k) => k !== key) : [...value, key])
@@ -27,7 +29,11 @@ export default function TierChips({ value, onChange }) {
   }
 
   return (
-    <div className="tierChips">
+    <div>
+      <p className="tierChips__count">
+        {count === 0 ? t('tier.none') : t('tier.count', { n: count })}
+      </p>
+      <div className="tierChips">
       {TIERS.map((tier) => {
         const on = value.includes(tier.key)
         return (
@@ -64,6 +70,7 @@ export default function TierChips({ value, onChange }) {
       ) : (
         <button type="button" className="chip chip--add" onClick={() => setAdding(true)}>＋ {t('tier.custom')}</button>
       )}
+      </div>
     </div>
   )
 }
