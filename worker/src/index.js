@@ -9,14 +9,28 @@
 
 import { sendBarePush } from './vapid.js'
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*', // tighten to your app origin in production
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'content-type',
+// Only the deployed app may call the push API. Add more origins (comma-list in
+// env.ALLOWED_ORIGINS) if you ever serve the app from a custom domain too.
+const ALLOWED_ORIGINS = new Set([
+  'https://datereminderapp.vilhelmas-zu.workers.dev',
+])
+
+function corsHeaders(request) {
+  const origin = request.headers.get('Origin') || ''
+  const allow = ALLOWED_ORIGINS.has(origin) ? origin : 'null'
+  return {
+    'Access-Control-Allow-Origin': allow,
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'content-type',
+    'Vary': 'Origin',
+  }
 }
 
-const json = (data, status = 200) =>
-  new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json', ...CORS } })
+const json = (data, status, request) =>
+  new Response(JSON.stringify(data), {
+    status: status ?? 200,
+    headers: { 'content-type': 'application/json', ...corsHeaders(request) },
+  })
 
 function keyFor(endpoint) {
   return `sub:${endpoint}`
@@ -25,12 +39,12 @@ function keyFor(endpoint) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url)
-    if (request.method === 'OPTIONS') return new Response(null, { headers: CORS })
+    if (request.method === 'OPTIONS') return new Response(null, { headers: corsHeaders(request) })
 
     // Save / refresh a subscription and its schedule.
     if (request.method === 'POST' && url.pathname === '/subscribe') {
       const { subscription, schedule } = await request.json()
-      if (!subscription?.endpoint) return json({ error: 'no endpoint' }, 400)
+      if (!subscription?.endpoint) return json({ error: 'no endpoint' }, 400, request)
       const k = keyFor(subscription.endpoint)
       const prev = JSON.parse((await env.SUBS.get(k)) || '{}')
       await env.SUBS.put(k, JSON.stringify({
@@ -39,30 +53,30 @@ export default {
         sent: prev.sent || [],
         pending: prev.pending || [],
       }))
-      return json({ ok: true })
+      return json({ ok: true }, 200, request)
     }
 
     if (request.method === 'POST' && url.pathname === '/unsubscribe') {
       const { endpoint } = await request.json()
       if (endpoint) await env.SUBS.delete(keyFor(endpoint))
-      return json({ ok: true })
+      return json({ ok: true }, 200, request)
     }
 
     // The service worker fetches what's due for its endpoint, then we clear it.
     if (request.method === 'GET' && url.pathname === '/due') {
       const endpoint = url.searchParams.get('endpoint')
-      if (!endpoint) return json([], 200)
+      if (!endpoint) return json([], 200, request)
       const k = keyFor(endpoint)
       const rec = JSON.parse((await env.SUBS.get(k)) || 'null')
-      if (!rec) return json([])
+      if (!rec) return json([], 200, request)
       const pending = rec.pending || []
       rec.pending = []
       await env.SUBS.put(k, JSON.stringify(rec))
-      return json(pending)
+      return json(pending, 200, request)
     }
 
-    if (url.pathname === '/health') return json({ ok: true })
-    return new Response('Date Reminder push worker', { headers: CORS })
+    if (url.pathname === '/health') return json({ ok: true }, 200, request)
+    return new Response('Date Reminder push worker', { headers: corsHeaders(request) })
   },
 
   // Cron: runs every minute (see wrangler.toml). Fire anything now due.
