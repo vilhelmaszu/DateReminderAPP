@@ -22,7 +22,8 @@ function grid(year, month, weekStart) {
 export default function MiniMonth({ year, month, events, today, weekStart, onPickMonth, onPickDay }) {
   const { locale } = useI18n()
   const cells = grid(year, month, weekStart)
-  const label = new Date(year, month, 1).toLocaleDateString(locale, { month: 'short' })
+  // Full month name ("January" not "Jan") so each tile reads cleanly.
+  const label = new Date(year, month, 1).toLocaleDateString(locale, { month: 'long' })
 
   return (
     <div className="mini">

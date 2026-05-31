@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { loadEvents, saveEvents, makeEvent } from './lib/storage.js'
 import { sortByUpcoming, eventsOnDate, daysUntil } from './lib/dates.js'
 import { loadTheme, saveTheme } from './lib/themes.js'
+import { loadStyle, saveStyle } from './lib/styles.js'
 import { loadSettings, saveSettings } from './lib/settings.js'
 import { runReminders } from './lib/notifications.js'
 import { syncSchedule, pushConfigured } from './lib/push.js'
@@ -26,6 +27,7 @@ export default function App() {
   const [toast, setToast] = useState(null)     // { message, undo() } or null
   const [showAllUpcoming, setShowAllUpcoming] = useState(false)
   const [theme, setTheme] = useState(() => loadTheme())
+  const [style, setStyle] = useState(() => loadStyle())
   const [settings, setSettings] = useState(() => loadSettings())
   const [showSettings, setShowSettings] = useState(false)
   const [dayPanel, setDayPanel] = useState(null) // a Date when the day panel is open
@@ -40,6 +42,11 @@ export default function App() {
     document.documentElement.dataset.theme = theme
     saveTheme(theme)
   }, [theme])
+
+  useEffect(() => {
+    document.documentElement.dataset.style = style
+    saveStyle(style)
+  }, [style])
 
   useEffect(() => {
     document.documentElement.dataset.motion = settings.reduceMotion ? 'reduced' : 'full'
@@ -215,6 +222,8 @@ export default function App() {
           setSettings={setSettings}
           theme={theme}
           setTheme={setTheme}
+          style={style}
+          setStyle={setStyle}
           events={events}
           onNotifChange={() => setNotifTick((n) => n + 1)}
           onClose={() => setShowSettings(false)}

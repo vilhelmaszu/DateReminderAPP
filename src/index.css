@@ -197,6 +197,84 @@
   --important-border: rgba(220, 38, 38, 0.40);
 }
 
+/* ---- Design styles ---- *
+ * Palettes (above) set COLORS. Styles set SHAPE/FEEL. The two are orthogonal:
+ * any palette × any style works. Default is "rounded" (no override needed).
+ */
+
+/* CRISP — professional / business-like. Sharp corners, no gradients, subtle
+   borders, denser spacing. Linear / Stripe / Notion feel. */
+[data-style="crisp"] {
+  --radius: 6px;
+  --radius-sm: 4px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+[data-style="crisp"] .btn--primary {
+  background: var(--primary);
+  box-shadow: none;
+}
+[data-style="crisp"] .btn--primary:hover { background: var(--primary-soft); filter: none; }
+[data-style="crisp"] .seg__btn.is-active { background: var(--primary); }
+[data-style="crisp"] .stat__value,
+[data-style="crisp"] .card__days,
+[data-style="crisp"] .card__daysSub { font-variant-numeric: tabular-nums; }
+[data-style="crisp"] .stat { padding: 14px 16px; }
+[data-style="crisp"] .card { padding: 13px 14px; gap: 12px; transition: background 0.12s ease; }
+[data-style="crisp"] .card:hover { transform: none; background: var(--surface-2); }
+[data-style="crisp"] .cal { padding: 16px; }
+[data-style="crisp"] .card__emoji { border-radius: 4px; }
+[data-style="crisp"] .toggle__input:checked + .toggle__track { background: var(--primary); }
+[data-style="crisp"] .toggle__track { border-radius: 4px; }
+[data-style="crisp"] .toggle__knob { border-radius: 2px; }
+[data-style="crisp"] .header__logo { border-radius: 6px; }
+[data-style="crisp"] .modal { border-radius: 6px; }
+[data-style="crisp"] .stat__label { text-transform: uppercase; letter-spacing: 0.05em; font-size: 11px; }
+
+/* GLASS — translucent panels with backdrop blur. Beautiful on dark palettes
+   especially. Subtle on lights so it stays legible. */
+[data-style="glass"] {
+  --radius: 14px;
+  --radius-sm: 10px;
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+[data-style="glass"] .stat,
+[data-style="glass"] .cal,
+[data-style="glass"] .card,
+[data-style="glass"] .empty,
+[data-style="glass"] .modal,
+[data-style="glass"] .toast {
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border-color: color-mix(in srgb, var(--text) 12%, transparent);
+}
+[data-style="glass"] .stat:hover, [data-style="glass"] .card:hover {
+  background: color-mix(in srgb, var(--surface) 75%, transparent);
+}
+[data-style="glass"] .modal__backdrop {
+  background: rgba(8, 9, 13, 0.45);
+  backdrop-filter: blur(8px);
+}
+/* Lights need a bit more opacity to stay readable */
+[data-theme="daylight"][data-style="glass"] .stat,
+[data-theme="daylight"][data-style="glass"] .cal,
+[data-theme="daylight"][data-style="glass"] .card,
+[data-theme="daylight"][data-style="glass"] .modal,
+[data-theme="sand"][data-style="glass"] .stat,
+[data-theme="sand"][data-style="glass"] .cal,
+[data-theme="sand"][data-style="glass"] .card,
+[data-theme="sand"][data-style="glass"] .modal,
+[data-theme="rose"][data-style="glass"] .stat,
+[data-theme="rose"][data-style="glass"] .cal,
+[data-theme="rose"][data-style="glass"] .card,
+[data-theme="rose"][data-style="glass"] .modal,
+[data-theme="mint"][data-style="glass"] .stat,
+[data-theme="mint"][data-style="glass"] .cal,
+[data-theme="mint"][data-style="glass"] .card,
+[data-theme="mint"][data-style="glass"] .modal {
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+}
+
 * { box-sizing: border-box; }
 
 /* Let the page grow with its content — never lock body to viewport height,
@@ -394,6 +472,50 @@ body {
 }
 .swatch__band { flex: 1; }
 .swatch__name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---- Style picker (Rounded / Crisp / Glass) ---- */
+.styleGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.styleSwatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--text-dim);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 8px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.styleSwatch:hover { border-color: var(--primary); color: var(--text); }
+.styleSwatch.is-active {
+  border-color: var(--primary);
+  color: var(--text);
+  box-shadow: 0 0 0 1px var(--primary) inset;
+}
+.styleSwatch__preview {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: stretch;
+  width: 100%;
+  max-width: 56px;
+}
+.styleSwatch__line { background: var(--primary); display: block; }
+.styleSwatch__line--lg { height: 8px; }
+.styleSwatch__line--sm { height: 5px; width: 70%; }
+/* Each preview's shape mirrors the actual style it represents */
+[data-style-preview="rounded"] .styleSwatch__line { border-radius: 6px; }
+[data-style-preview="crisp"] .styleSwatch__line { border-radius: 1px; }
+[data-style-preview="glass"] .styleSwatch__line {
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--primary) 65%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 25%, transparent);
+}
+.styleSwatch__name { font-weight: 600; }
 
 .toggle--bare { gap: 0; }
 
@@ -714,19 +836,19 @@ body {
 }
 .mini:hover { border-color: var(--primary); transform: translateY(-1px); }
 /* The label is its own clickable button (drills into the month).
-   Style it as bare text so it doesn't look like a button on a button. */
+   Style it as a real, readable title — not a dim uppercase tag. */
 .mini__label {
   font: inherit;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-dim);
+  letter-spacing: -0.01em;
+  color: var(--text);
   background: transparent;
   border: none;
   padding: 0;
   text-align: left;
   cursor: pointer;
+  text-transform: capitalize;
   transition: color 0.12s ease;
 }
 .mini__label:hover { color: var(--primary); }

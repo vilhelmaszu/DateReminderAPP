@@ -3,11 +3,12 @@ import { useI18n, LANGUAGES } from '../lib/i18n.jsx'
 import { THEMES } from '../lib/themes.js'
 import { permission, sendTest } from '../lib/notifications.js'
 import { TYPE_ORDER, typeMeta } from '../lib/eventTypes.js'
+import { STYLES } from '../lib/styles.js'
 import { SOUNDS, playSound } from '../lib/sounds.js'
 import { pushConfigured, currentSubscription, enablePush, disablePush } from '../lib/push.js'
 import TierChips from './TierChips.jsx'
 
-export default function SettingsPanel({ settings, setSettings, theme, setTheme, events, onNotifChange, onClose }) {
+export default function SettingsPanel({ settings, setSettings, theme, setTheme, style, setStyle, events, onNotifChange, onClose }) {
   const { t, lang, setLang } = useI18n()
   const [perm, setPerm] = useState(() => permission())
   const [testMsg, setTestMsg] = useState(null)
@@ -85,6 +86,26 @@ export default function SettingsPanel({ settings, setSettings, theme, setTheme, 
                     ))}
                   </span>
                   <span className="swatch__name">{th.name[lang] || th.name.en}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="settings__row settings__row--col">
+            <span className="settings__label">{t('settings.style')}</span>
+            <div className="styleGrid">
+              {STYLES.map((s) => (
+                <button
+                  key={s.id}
+                  className={`styleSwatch ${style === s.id ? 'is-active' : ''}`}
+                  onClick={() => setStyle(s.id)}
+                  aria-pressed={style === s.id}
+                >
+                  <span className="styleSwatch__preview" data-style-preview={s.id} aria-hidden="true">
+                    <span className="styleSwatch__line styleSwatch__line--lg" />
+                    <span className="styleSwatch__line styleSwatch__line--sm" />
+                  </span>
+                  <span className="styleSwatch__name">{s.name[lang] || s.name.en}</span>
                 </button>
               ))}
             </div>
