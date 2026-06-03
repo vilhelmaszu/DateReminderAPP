@@ -22,3 +22,8 @@ GUIDE.md
 worker/node_modules
 worker/.wrangler
 worker/dist
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
