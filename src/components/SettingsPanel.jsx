@@ -7,16 +7,19 @@ import { STYLES } from '../lib/styles.js'
 import { SOUNDS, playSound } from '../lib/sounds.js'
 import { pushConfigured, currentSubscription, enablePush, disablePush } from '../lib/push.js'
 import { downloadBackup, importBackup, readBackupFile } from '../lib/backup.js'
+import { useAuth } from '../lib/auth.jsx'
 import TierChips from './TierChips.jsx'
 
-export default function SettingsPanel({ settings, setSettings, theme, setTheme, style, setStyle, events, onNotifChange, onClose }) {
+export default function SettingsPanel({ settings, setSettings, theme, setTheme, style, setStyle, events, onNotifChange, onSignInClick, onClose }) {
   const { t, lang, setLang } = useI18n()
+  const auth = useAuth()
   const [perm, setPerm] = useState(() => permission())
   const [testMsg, setTestMsg] = useState(null)
   const [pushOn, setPushOn] = useState(false)
   const [pushBusy, setPushBusy] = useState(false)
   const [backupMsg, setBackupMsg] = useState(null)
   const fileRef = useRef(null)
+  const [pwForm, setPwForm] = useState({ open: false, value: '', busy: false, msg: null })
 
   const update = (patch) => setSettings((s) => ({ ...s, ...patch }))
 
@@ -46,6 +49,22 @@ export default function SettingsPanel({ settings, setSettings, theme, setTheme, 
       setPerm(permission())
       onNotifChange?.()
     }
+  }
+
+  async function submitPassword(e) {
+    e.preventDefault()
+    if (pwForm.value.length < 8) {
+      setPwForm((f) => ({ ...f, msg: { ok: false, text: t('signin.shortPassword') } })); return
+    }
+    setPwForm((f) => ({ ...f, busy: true, msg: null }))
+    const { error } = await auth.setPassword(pwForm.value)
+    setPwForm((f) => ({
+      ...f,
+      busy: false,
+      value: error ? f.value : '',
+      open: !!error,
+      msg: { ok: !error, text: error ? (error.message || t('signin.fail')) : t('settings.passwordSaved') },
+    }))
   }
 
   function handleBackup() {
@@ -235,6 +254,68 @@ export default function SettingsPanel({ settings, setSettings, theme, setTheme, 
             </div>
           )}
         </section>
+
+        {/* ---------- Cloud sync (sign in) ---------- */}
+        {auth.enabled && (
+          <section className="settings__section">
+            <h3 className="settings__heading">{t('settings.sync')}</h3>
+            {auth.user ? (
+              <>
+                <div className="settings__row">
+                  <span className="statusDot is-on" aria-hidden="true" />
+                  <span className="settings__status">
+                    {t('settings.signedInAs', { email: auth.user.email })}
+                  </span>
+                </div>
+                <p className="settings__hint">{t('settings.syncOnHint')}</p>
+
+                {pwForm.open ? (
+                  <form className="pwForm" onSubmit={submitPassword}>
+                    <input
+                      className="field__input"
+                      type="password"
+                      autoFocus
+                      autoComplete="new-password"
+                      value={pwForm.value}
+                      onChange={(e) => setPwForm((f) => ({ ...f, value: e.target.value, msg: null }))}
+                      placeholder={t('settings.passwordNewPlaceholder')}
+                      disabled={pwForm.busy}
+                    />
+                    <div className="pwForm__actions">
+                      <button type="button" className="btn btn--ghost" onClick={() => setPwForm({ open: false, value: '', busy: false, msg: null })} disabled={pwForm.busy}>
+                        {t('form.cancel')}
+                      </button>
+                      <button type="submit" className="btn btn--primary" disabled={pwForm.busy || pwForm.value.length < 8}>
+                        {pwForm.busy ? '…' : t('settings.passwordSave')}
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <button
+                    className="btn btn--ghost settings__test"
+                    onClick={() => setPwForm({ open: true, value: '', busy: false, msg: null })}
+                  >
+                    🔑 {t('settings.setPassword')}
+                  </button>
+                )}
+                {pwForm.msg && (
+                  <p className={`settings__testMsg ${pwForm.msg.ok ? 'is-ok' : 'is-fail'}`}>{pwForm.msg.text}</p>
+                )}
+
+                <button className="btn btn--ghost settings__test" onClick={() => auth.signOut()}>
+                  {t('settings.signOut')}
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="settings__hint">{t('settings.syncHint')}</p>
+                <button className="btn btn--primary settings__test" onClick={() => { onClose?.(); onSignInClick?.() }}>
+                  🔐 {t('settings.signIn')}
+                </button>
+              </>
+            )}
+          </section>
+        )}
 
         {/* ---------- Backup & restore ---------- */}
         <section className="settings__section">

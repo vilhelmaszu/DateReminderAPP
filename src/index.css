@@ -690,6 +690,73 @@ body {
 .settings__test { width: 100%; margin-top: 4px; }
 .backupRow { display: flex; gap: 8px; flex-wrap: wrap; }
 .backupRow__btn { flex: 1 1 160px; }
+
+/* ---------- Sign-in panel ---------- */
+.modal--signin { max-width: 420px; }
+.signin__lead { margin: 0 0 16px; color: var(--text-dim); font-size: 14px; line-height: 1.45; }
+.signin__why { margin: 8px 0 0; font-size: 12.5px; color: var(--text-faint); line-height: 1.45; }
+.signin__sent { padding: 18px 16px; background: var(--surface-2); border-radius: var(--radius-sm); }
+.signin__sentTitle { margin: 0 0 8px; font-size: 16px; font-weight: 700; color: var(--text); }
+.signin__sentBody { margin: 0 0 10px; font-size: 14px; color: var(--text); line-height: 1.5; }
+.signin__sentNote { margin: 0; font-size: 12.5px; color: var(--text-faint); }
+
+.modal__actions--stacked { flex-direction: column; align-items: stretch; gap: 8px; }
+.modal__actions--stacked .btn { width: 100%; }
+
+.signin__errorBox {
+  margin: 4px 0 12px;
+  padding: 12px;
+  background: color-mix(in srgb, var(--important-strong) 8%, var(--surface-2));
+  border: 1px solid color-mix(in srgb, var(--important-strong) 25%, var(--border));
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.signin__errorBox .modal__error { margin: 0; }
+.signin__inlineBtn {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  color: var(--primary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+}
+.signin__inlineBtn:hover { text-decoration: underline; }
+
+/* Set-password inline form in Settings */
+.pwForm { display: flex; flex-direction: column; gap: 8px; margin: 8px 0; }
+.pwForm__actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ---------- Migration prompt ---------- */
+.modal--migration { max-width: 480px; }
+.migration__lead { margin: 0 0 18px; font-size: 14px; line-height: 1.5; color: var(--text); }
+.migration__options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.migration__opt {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  cursor: pointer;
+  font: inherit;
+  color: var(--text);
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+.migration__opt:hover { border-color: var(--primary); background: var(--surface); }
+.migration__opt strong { font-size: 14.5px; }
+.migration__opt span { font-size: 12.5px; color: var(--text-dim); }
+.migration__opt--recommended {
+  border-color: color-mix(in srgb, var(--primary) 50%, var(--border));
+  background: color-mix(in srgb, var(--primary) 8%, var(--surface-2));
+}
+.migration__note { margin: 0; font-size: 12px; color: var(--text-faint); text-align: center; }
 .settings__test:disabled { opacity: 0.5; cursor: not-allowed; }
 .settings__testMsg { margin: 10px 0 0; font-size: 13px; text-align: center; }
 .settings__testMsg.is-ok { color: #22c55e; }

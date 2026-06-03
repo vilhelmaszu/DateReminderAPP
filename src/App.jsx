@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
-import { loadEvents, saveEvents, makeEvent } from './lib/storage.js'
 import { sortByUpcoming, eventsOnDate, daysUntil } from './lib/dates.js'
 import { loadTheme, saveTheme } from './lib/themes.js'
 import { loadStyle, saveStyle } from './lib/styles.js'
-import { loadSettings, saveSettings } from './lib/settings.js'
 import { runReminders } from './lib/notifications.js'
 import { syncSchedule, pushConfigured } from './lib/push.js'
 import { useNow } from './lib/useNow.js'
 import { useI18n } from './lib/i18n.jsx'
+import { useAuth } from './lib/auth.jsx'
+import { useSyncedStore } from './lib/useSyncedStore.js'
 import StatBar from './components/StatBar.jsx'
 import EventCard from './components/EventCard.jsx'
 import AddEventForm from './components/AddEventForm.jsx'
@@ -16,19 +16,29 @@ import SettingsPanel from './components/SettingsPanel.jsx'
 import DayPanel from './components/DayPanel.jsx'
 import Toast from './components/Toast.jsx'
 import InstallButton from './components/InstallButton.jsx'
+import SignInPanel from './components/SignInPanel.jsx'
+import MigrationPrompt from './components/MigrationPrompt.jsx'
 
 export default function App() {
   const { t, locale } = useI18n()
+  const { user } = useAuth()
 
-  const [events, setEvents] = useState(() => loadEvents())
+  // Synced store — events + settings, swap between cloud and local depending
+  // on whether the user is signed in. Realtime updates land in here too.
+  const {
+    events, settings,
+    addEvent, updateEvent, deleteEvent, setSettings,
+    migrationInfo, resolveMigration,
+  } = useSyncedStore(user)
+
   const [showForm, setShowForm] = useState(false)
   const [pickedDate, setPickedDate] = useState(null)
   const [editing, setEditing] = useState(null) // an event when editing
   const [toast, setToast] = useState(null)     // { message, undo() } or null
   const [showAllUpcoming, setShowAllUpcoming] = useState(false)
+  const [showSignIn, setShowSignIn] = useState(false)
   const [theme, setTheme] = useState(() => loadTheme())
   const [style, setStyle] = useState(() => loadStyle())
-  const [settings, setSettings] = useState(() => loadSettings())
   const [showSettings, setShowSettings] = useState(false)
   const [dayPanel, setDayPanel] = useState(null) // a Date when the day panel is open
 
@@ -36,8 +46,9 @@ export default function App() {
   // time passes. Used everywhere `today` is referenced.
   const today = useNow(30_000)
 
-  useEffect(() => { saveEvents(events) }, [events])
-
+  // Events + settings are persisted automatically by useSyncedStore (mirrors
+  // to localStorage + writes to cloud when signed in). Only display-side
+  // prefs are persisted here, since those stay per-device.
   useEffect(() => {
     document.documentElement.dataset.theme = theme
     saveTheme(theme)
@@ -50,8 +61,7 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.dataset.motion = settings.reduceMotion ? 'reduced' : 'full'
-    saveSettings(settings)
-  }, [settings])
+  }, [settings.reduceMotion])
 
   // Evaluate reminders on every clock tick and whenever events/tiers change.
   const [notifTick, setNotifTick] = useState(0)
@@ -75,33 +85,32 @@ export default function App() {
   const visibleUpcoming = showAllUpcoming ? upcoming : upcomingMonth
   const hiddenCount = upcoming.length - upcomingMonth.length
 
-  function submitEvent(form) {
+  async function submitEvent(form) {
     if (editing) {
-      // Apply edits to the existing record, preserving id.
-      setEvents((prev) => prev.map((e) => (e.id === editing.id ? { ...e, ...form } : e)))
+      await updateEvent(editing.id, form)
     } else {
-      setEvents((prev) => [...prev, makeEvent(form)])
+      await addEvent(form)
     }
   }
-  // Delete with a 5s undo toast — the event vanishes immediately but is held
-  // here in closure so Undo can splice it back at its original index.
-  function deleteEvent(id) {
-    let removed = null
-    let index = -1
-    setEvents((prev) => {
-      index = prev.findIndex((e) => e.id === id)
-      if (index === -1) return prev
-      removed = prev[index]
-      return prev.filter((_, i) => i !== index)
-    })
+  // Delete with a 5s undo toast. Snapshot the event before we let the store
+  // remove it — Undo just re-adds via addEvent (the id is preserved through
+  // makeEvent's `id` field, but we use upsert so it lands back in place).
+  async function handleDelete(id) {
+    const removed = events.find((e) => e.id === id)
     if (!removed) return
+    await deleteEvent(id)
     setToast({
       message: t('toast.deleted', { name: removed.name }),
-      undo: () => {
-        setEvents((prev) => {
-          const next = [...prev]
-          next.splice(Math.min(index, next.length), 0, removed)
-          return next
+      undo: async () => {
+        // Re-insert the deleted event by name/type/etc. Cloud will upsert.
+        await addEvent({
+          name: removed.name,
+          type: removed.type,
+          date: removed.date,
+          time: removed.time,
+          recurrence: removed.recurrence,
+          notes: removed.notes,
+          reminders: removed.reminders,
         })
         setToast(null)
       },
@@ -188,7 +197,7 @@ export default function App() {
         ) : (
           <ul className="cardList">
             {visibleUpcoming.map((e) => (
-              <EventCard key={e.id} event={e} today={today} onDelete={deleteEvent} onEdit={openEdit} />
+              <EventCard key={e.id} event={e} today={today} onDelete={handleDelete} onEdit={openEdit} />
             ))}
           </ul>
         )}
@@ -209,7 +218,7 @@ export default function App() {
           day={dayPanel}
           events={events}
           today={today}
-          onDelete={deleteEvent}
+          onDelete={handleDelete}
           onEdit={openEdit}
           onAddForDay={(day) => { setDayPanel(null); openForm(day) }}
           onClose={() => setDayPanel(null)}
@@ -226,9 +235,14 @@ export default function App() {
           setStyle={setStyle}
           events={events}
           onNotifChange={() => setNotifTick((n) => n + 1)}
+          onSignInClick={() => setShowSignIn(true)}
           onClose={() => setShowSettings(false)}
         />
       )}
+
+      {showSignIn && <SignInPanel onClose={() => setShowSignIn(false)} />}
+
+      <MigrationPrompt info={migrationInfo} onResolve={resolveMigration} />
 
       {toast && (
         <Toast

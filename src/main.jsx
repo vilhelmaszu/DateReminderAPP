@@ -2,12 +2,15 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
 import { I18nProvider } from './lib/i18n.jsx'
+import { AuthProvider } from './lib/auth.jsx'
 import './index.css'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <I18nProvider>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </I18nProvider>
   </StrictMode>,
 )
